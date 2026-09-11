@@ -3,77 +3,87 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Digital Services Store</title>
+  <title>Digital Services Hub - Virtual Cards, Gift Cards & SIM Recharges</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f4f6f8; margin: 0; padding: 20px; }
-    .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-    h1 { text-align: center; color: #333; margin-top: 0; }
-    .nav-tabs { display: flex; justify-content: space-around; margin-bottom: 20px; }
-    .tab-btn { padding: 10px 15px; cursor: pointer; border: none; background: #e0e0e0; border-radius: 5px; font-weight: bold; }
-    .tab-btn.active { background: #007bff; color: #fff; }
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background: #f0f2f5; margin: 0; padding: 20px; }
+    .app-container { max-width: 900px; margin: 0 auto; background: #ffffff; border-radius: 12px; padding: 25px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+    h1 { text-align: center; color: #1a1a1a; margin-bottom: 25px; }
+    .tabs { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 2px solid #eef0f2; padding-bottom: 10px; }
+    .tab-btn { flex: 1; padding: 12px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; font-weight: 600; cursor: pointer; text-align: center; transition: all 0.2s; }
+    .tab-btn.active { background: #0066ff; color: #ffffff; border-color: #0066ff; }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
-    .form-group { margin-bottom: 15px; }
-    label { display: block; margin-bottom: 5px; font-weight: bold; }
-    input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-    button.submit-btn { width: 100%; padding: 12px; background: #28a745; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; margin-top: 10px; }
+    .form-group { margin-bottom: 18px; }
+    label { display: block; margin-bottom: 6px; font-weight: 600; color: #495057; }
+    input, select { width: 100%; padding: 12px; border: 1px solid #ced4da; border-radius: 6px; font-size: 15px; }
+    .btn-submit { width: 100%; padding: 14px; background: #10b981; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
+    .btn-submit:hover { background: #059669; }
+    .search-box { display: flex; gap: 10px; margin-bottom: 20px; }
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 15px; max-height: 400px; overflow-y: auto; padding-right: 5px; }
+    .item-card { border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px; background: #fafafa; display: flex; flex-direction: column; justify-content: space-between; }
+    .item-card h4 { margin: 0 0 8px 0; color: #111827; }
+    .item-card p { margin: 0 0 12px 0; color: #6b7280; font-size: 14px; }
+    .buy-card-btn { background: #2563eb; color: white; border: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; cursor: pointer; }
   </style>
 </head>
 <body>
-<div class="container">
-  <h1>Digital Store</h1>
-  <div class="nav-tabs">
-    <button class="tab-btn active" onclick="switchTab('cards')">Virtual Cards</button>
-    <button class="tab-btn" onclick="switchTab('giftcards')">Gift Cards & Top-Up</button>
-    <button class="tab-btn" onclick="switchTab('esim')">eSIM</button>
+
+<div class="app-container">
+  <h1>Digital Storefront</h1>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('cards')">💳 Virtual Cards</button>
+    <button class="tab-btn" onclick="switchTab('sims')">📱 Mobile SIM Top-Up</button>
+    <button class="tab-btn" onclick="switchTab('giftcards')">🎁 All Gift Cards</button>
   </div>
 
+  <!-- TAB 1: VIRTUAL CARDS -->
   <div id="cards" class="tab-content active">
+    <h3>Issue USD Virtual Visa/Mastercard</h3>
     <form id="cardForm">
-      <div class="form-group"><label>First Name</label><input type="text" id="cardFirstName" required></div>
-      <div class="form-group"><label>Last Name</label><input type="text" id="cardLastName" required></div>
-      <div class="form-group"><label>Amount (USD)</label><input type="number" id="cardAmount" value="15" min="10" required></div>
-      <button type="submit" class="submit-btn">Buy Card</button>
+      <div class="form-group"><label>First Name</label><input type="text" id="cardFn" required placeholder="John"></div>
+      <div class="form-group"><label>Last Name</label><input type="text" id="cardLn" required placeholder="Doe"></div>
+      <div class="form-group"><label>Card Initial Balance (USD)</label><input type="number" id="cardAmount" min="10" value="15" required></div>
+      <button type="submit" class="btn-submit">Purchase Virtual Card</button>
     </form>
   </div>
 
+  <!-- TAB 2: MOBILE SIM TOP-UP -->
+  <div id="sims" class="tab-content">
+    <h3>Recharge Mobile SIM / Buy Data</h3>
+    <form id="simForm">
+      <div class="form-group">
+        <label>Mobile Number to Recharge (with country code)</label>
+        <input type="text" id="simPhone" required placeholder="+966500000000 or +1234567890">
+      </div>
+      <div class="form-group">
+        <label>Carrier / Service</label>
+        <select id="simCarrier">
+          <option value="STC Saudi Arabia">STC (Saudi Arabia)</option>
+          <option value="Mobily Saudi Arabia">Mobily (Saudi Arabia)</option>
+          <option value="Zain Saudi Arabia">Zain (Saudi Arabia)</option>
+          <option value="International SIM Recharge">International Mobile Top-Up</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Recharge Value (USD)</label>
+        <input type="number" id="simAmount" min="5" value="10" required>
+      </div>
+      <button type="submit" class="btn-submit">Recharge Mobile Number</button>
+    </form>
+  </div>
+
+  <!-- TAB 3: GIFTCARDS (FETCHED FROM KRIPICARD) -->
   <div id="giftcards" class="tab-content">
-    <form id="giftForm">
-      <div class="form-group"><label>Email Address</label><input type="email" id="giftEmail" required></div>
-      <div class="form-group">
-        <label>Service / Provider</label>
-        <select id="giftBrand">
-          <option value="iTunes">iTunes / App Store</option>
-          <option value="STC">STC Saudi Recharge</option>
-          <option value="Mobily">Mobily Saudi Recharge</option>
-          <option value="PlayStation">PlayStation Network</option>
-        </select>
-      </div>
-      <div class="form-group"><label>Amount (USD)</label><input type="number" id="giftAmount" value="10" required></div>
-      <button type="submit" class="submit-btn">Buy Gift Card / Top-Up</button>
-    </form>
-  </div>
-
-  <div id="esim" class="tab-content">
-    <form id="esimForm">
-      <div class="form-group">
-        <label>Country</label>
-        <select id="esimCountry">
-          <option value="SA">Saudi Arabia</option>
-          <option value="US">United States</option>
-          <option value="GLOBAL">Global Coverage</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Data Plan</label>
-        <select id="esimPlan">
-          <option value="1GB_7D">1 GB - 7 Days</option>
-          <option value="3GB_30D">3 GB - 30 Days</option>
-          <option value="10GB_30D">10 GB - 30 Days</option>
-        </select>
-      </div>
-      <button type="submit" class="submit-btn">Buy eSIM Plan</button>
-    </form>
+    <h3>Browse All Kripicard Gift Cards</h3>
+    <div class="search-box">
+      <input type="text" id="giftSearch" placeholder="Search (e.g. iTunes, Netflix, PlayStation, Amazon)">
+      <button onclick="loadGiftCards()" style="padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer;">Search</button>
+    </div>
+    <div id="giftGrid" class="card-grid">
+      <p style="text-align: center; width: 100%;">Click Search or type a brand name to load available gift cards...</p>
+    </div>
   </div>
 </div>
 
@@ -85,20 +95,93 @@
     event.currentTarget.classList.add('active');
   }
 
+  // Handle Virtual Card Checkout
   document.getElementById('cardForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const res = await fetch('/api/create-payment', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        amount: document.getElementById('cardAmount').value,
-        firstName: document.getElementById('cardFirstName').value,
-        lastName: document.getElementById('cardLastName').value
-      })
+    await sendCheckout({
+      orderType: 'Virtual Card',
+      amount: document.getElementById('cardAmount').value,
+      title: `Card for ${document.getElementById('cardFn').value} ${document.getElementById('cardLn').value}`
     });
-    const data = await res.json();
-    if(data.invoice_url) window.location.href = data.invoice_url;
   });
+
+  // Handle SIM Recharge Checkout
+  document.getElementById('simForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    await sendCheckout({
+      orderType: 'SIM Recharge',
+      amount: document.getElementById('simAmount').value,
+      title: document.getElementById('simCarrier').value,
+      targetNumber: document.getElementById('simPhone').value
+    });
+  });
+
+  // Fetch Kripicard Catalog
+  async function loadGiftCards() {
+    const grid = document.getElementById('giftGrid');
+    grid.innerHTML = '<p style="text-align:center;">Loading catalog...</p>';
+    const query = document.getElementById('giftSearch').value;
+
+    try {
+      const res = await fetch('/api/giftcards/catalog', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ search: query })
+      });
+      const data = await res.json();
+
+      if (!data.packages || data.packages.length === 0) {
+        grid.innerHTML = '<p style="text-align:center;">No gift cards found. Try searching for a different term.</p>';
+        return;
+      }
+
+      grid.innerHTML = '';
+      data.packages.forEach(pkg => {
+        const cardEl = document.createElement('div');
+        cardEl.className = 'item-card';
+        cardEl.innerHTML = `
+          <div>
+            <h4>${pkg.title || pkg.name || 'Gift Card'}</h4>
+            <p>Country: ${pkg.country || 'Global'} | Min: $${pkg.min_amount || 5}</p>
+          </div>
+          <button class="buy-card-btn" onclick="buyGiftCard('${pkg.title || pkg.name}', ${pkg.min_amount || 10})">Buy Now</button>
+        `;
+        grid.appendChild(cardEl);
+      });
+    } catch (err) {
+      grid.innerHTML = '<p style="text-align:center; color:red;">Failed to load gift cards from catalog.</p>';
+    }
+  }
+
+  async function buyGiftCard(title, amount) {
+    const email = prompt(`Enter your email address to receive the code for ${title}:`);
+    if (!email) return;
+    await sendCheckout({
+      orderType: 'Gift Card',
+      amount: amount,
+      title: title,
+      email: email
+    });
+  }
+
+  async function sendCheckout(payload) {
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.invoice_url) {
+        window.location.href = data.invoice_url;
+      } else {
+        alert('Failed to generate invoice. Please check server logs.');
+      }
+    } catch (err) {
+      alert('Network error connecting to payment gateway.');
+    }
+  }
 </script>
+
 </body>
 </html>
