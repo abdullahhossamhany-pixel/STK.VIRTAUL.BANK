@@ -1,16 +1,13 @@
 const express = require('express');
 const axios = require('axios');
-const path = require('path');
+const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
-app.use(express.json());
-app.use(express.static(__dirname));
 
-// Serve main web dashboard
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
+// Enable CORS for external frontends (Vercel, Netlify, v0, etc.)
+app.use(cors());
+app.use(express.json());
 
 // 1. Fetch Dynamic Gift Cards Catalog from Kripicard
 app.post('/api/giftcards/catalog', async (req, res) => {
@@ -28,7 +25,7 @@ app.post('/api/giftcards/catalog', async (req, res) => {
   }
 });
 
-// 2. Universal Order Payment Endpoint (Virtual Cards, Gift Cards, Mobile Top-Ups, eSIM)
+// 2. Universal Order Checkout Endpoint
 app.post('/api/checkout', async (req, res) => {
   try {
     const { orderType, amount, title, targetNumber, email } = req.body;
@@ -58,7 +55,7 @@ app.post('/api/checkout', async (req, res) => {
   }
 });
 
-// Webhook for Automated Fulfillment
+// 3. NOWPayments Webhook Handler
 app.post('/webhooks/nowpayments', async (req, res) => {
   const { payment_status, order_id } = req.body;
   if (payment_status === 'finished') {
@@ -68,4 +65,4 @@ app.post('/webhooks/nowpayments', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
+app.listen(PORT, () => console.log(`Backend server listening on port ${PORT}`));
