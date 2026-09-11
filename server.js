@@ -1,23 +1,18 @@
-require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
-const crypto = require('crypto');
+const path = require('path');
+require('dotenv').config();
 
 const app = express();
 app.use(express.json());
+app.use(express.static(__dirname));
 
-// Helper function to verify NOWPayments HMAC signature
-function verifySignature(params, secret, signature) {
-  const sortedKeys = Object.keys(params).sort();
-  const sortedObj = {};
-  sortedKeys.forEach(key => sortedObj[key] = params[key]);
-  
-  const hmac = crypto.createHmac('sha512', secret);
-  hmac.update(JSON.stringify(sortedObj));
-  return hmac.digest('hex') === signature;
-}
+// Serve Store Frontend
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 
-// 1. ENDPOINT TO CREATE PAYMENT INVOICE
+// Create Payment Invoice Endpoint
 app.post('/api/create-payment', async (req, res) => {
   try {
     const { amount, firstName, lastName } = req.body;
@@ -27,8 +22,8 @@ app.post('/api/create-payment', async (req, res) => {
       price_currency: 'usd',
       order_id: `CARD_${Date.now()}`,
       order_description: `Virtual Card for ${firstName} ${lastName}`,
-      ipn_callback_url: 'https://YOUR-RENDER-APP-NAME.onrender.com/webhooks/nowpayments',
-      success_url: 'https://yourwebsite.com/success'
+      ipn_callback_url: `${req.protocol}://${req.get('host')}/webhooks/nowpayments`,
+      is_fee_paid_by_user: true
     }, {
       headers: {
         'x-api-key': process.env.NOWPAYMENTS_API_KEY,
@@ -43,39 +38,50 @@ app.post('/api/create-payment', async (req, res) => {
   }
 });
 
-// 2. WEBHOOK LISTENER
+// Gift Cards & Mobile Top-Up Endpoint
+app.post('/api/giftcards/packages', async (req, res) => {
+  try {
+    const { search, country } = req.body;
+    const response = await axios.post('https://home.kripicard.com/api/gifts/packages', {
+      api_key: process.env.KRIPICARD_API_KEY,
+      search: search || '',
+      country: country || ''
+    });
+    res.status(200).json(response.data);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch gift card packages' });
+  }
+});
+
+// eSIM Packages Endpoint
+app.post('/api/esim/packages', async (req, res) => {
+  try {
+    const { country } = req.body;
+    const response = await axios.post('https://home.kripicard.com/api/esim/packages', {
+      api_key: process.env.KRIPICARD_API_KEY,
+      country: country || 'US'
+    });
+    res.status(200).json(response.data);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch eSIM packages' });
+  }
+});
+
+// NOWPayments IPN Webhook Handler
 app.post('/webhooks/nowpayments', async (req, res) => {
-  const signature = req.headers['x-nowpayments-sig'];
-  const isValid = verifySignature(req.body, process.env.NOWPAYMENTS_IPN_SECRET, signature);
+  try {
+    const { payment_status, order_id } = req.body;
 
-  if (!isValid) {
-    console.error('Invalid IPN Signature!');
-    return res.status(400).send('Invalid Signature');
-  }
-
-  if (req.body.payment_status === 'finished') {
-    console.log('Payment confirmed finished! Triggering Kripicard API...');
-
-    const nameMatch = req.body.order_description.replace('Virtual Card for ', '').split(' ');
-    const firstName = nameMatch[0] || 'Customer';
-    const lastName = nameMatch[1] || 'User';
-
-    try {
-      const cardResponse = await axios.post('https://home.kripicard.com/api/premium/Create_card', {
-        api_key: process.env.KRIPICARD_API_KEY,
-        amount: 10,
-        bankBin: 1,
-        first_name: firstName,
-        last_name: lastName
-      });
-
-      console.log('Automated Card Issuance Result:', cardResponse.data);
-    } catch (error) {
-      console.error('Kripicard API Error:', error.response?.data || error.message);
+    if (payment_status === 'finished') {
+      console.log(`Payment confirmed for Order: ${order_id}`);
+      // Automated fulfillment logic goes here
     }
-  }
 
-  res.status(200).send('OK');
+    res.status(200).send('OK');
+  } catch (err) {
+    console.error('Webhook Error:', err.message);
+    res.status(500).send('Webhook processing failed');
+  }
 });
 
 const PORT = process.env.PORT || 3000;
